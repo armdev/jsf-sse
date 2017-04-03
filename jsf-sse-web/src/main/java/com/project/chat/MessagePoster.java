@@ -29,9 +29,9 @@ public class MessagePoster {
     @Getter
     private String secretMessage;
 
-    @ManagedProperty(value = "#{messageListener}")
-    @Setter
-    private MessageListener messageListener;
+   // @ManagedProperty(value = "#{messageListener}")
+  //  @Setter
+   // private MessageListener messageListener;
 
     public MessagePoster() {
 
@@ -42,7 +42,7 @@ public class MessagePoster {
         WebTarget webTarget = client.target(BASE_URI + "/broadcast");
         String message = "@" + secretUsername + ": " + secretMessage;
         webTarget.request(javax.ws.rs.core.MediaType.TEXT_PLAIN).post(javax.ws.rs.client.Entity.entity(message, javax.ws.rs.core.MediaType.TEXT_PLAIN));        
-        messageListener.init();
+       // messageListener.check();
 
     }
 
