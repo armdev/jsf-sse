@@ -41,7 +41,8 @@ public class MessagePoster {
         Client client = ClientBuilder.newClient();
         WebTarget webTarget = client.target(BASE_URI + "/broadcast");
         String message = "@" + secretUsername + ": " + secretMessage;
-        webTarget.request(javax.ws.rs.core.MediaType.TEXT_PLAIN).post(javax.ws.rs.client.Entity.entity(message, javax.ws.rs.core.MediaType.TEXT_PLAIN));        
+        webTarget.request(javax.ws.rs.core.MediaType.TEXT_PLAIN).post(javax.ws.rs.client.Entity.entity(message, javax.ws.rs.core.MediaType.TEXT_PLAIN)); 
+        secretMessage = null;
        // messageListener.check();
 
     }

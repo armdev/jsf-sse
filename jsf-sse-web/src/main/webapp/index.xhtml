@@ -30,7 +30,7 @@
                     </p:panel>
                 </p:layoutUnit>
                 <p:layoutUnit position="center">          
-                
+                    <p:poll interval="3"  update="tbl"/>
                     <p:dataTable var="list" id="tbl" rows="250" value="#{messageHolder.responseMessagesList}">
                         <p:column headerText="SSE">
                             <h:outputText value="#{list.message}" />

@@ -21,6 +21,7 @@ import javax.ws.rs.client.WebTarget;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.glassfish.jersey.media.sse.EventInput;
 import org.glassfish.jersey.media.sse.EventListener;
 import org.glassfish.jersey.media.sse.EventSource;
 import org.glassfish.jersey.media.sse.InboundEvent;
@@ -64,30 +65,53 @@ public class MessageListener implements Serializable {
     }
 
     public void checkSSE() {
-        System.out.println("init called");
         Client client = ClientBuilder.newBuilder()
                 .register(SseFeature.class).build();
-        WebTarget webTarget = client.target("http://localhost:9090/broadcast");
-        EventSource eventSource = EventSource.target(webTarget).build();
-        EventListener listener = new EventListener() {
-            @Override
-            public void onEvent(InboundEvent inboundEvent) {
-                if (inboundEvent.readData(String.class) != null) {
-                    final String responseMessage = inboundEvent.readData(String.class);
-                    //System.out.println(inboundEvent.getName() + "; "
-                    //      + inboundEvent.readData(String.class));
-                    System.out.println("responseMessage$ " + responseMessage);
-                    MessageDTO dto = new MessageDTO(responseMessage);
-                    messageHolder.getResponseMessagesList().add(0, dto);
-                }
+        WebTarget target = client.target("http://localhost:9090/broadcast");
 
+        EventInput eventInput = target.request().get(EventInput.class);
+        while (!eventInput.isClosed()) {
+            final InboundEvent inboundEvent = eventInput.read();
+            if (inboundEvent == null) {
+                // connection has been closed
+                break;
             }
-        };
 
-        //   System.out.println("responseMessage#### " + responseMessage);
-        eventSource.register(listener, "message");
-        eventSource.open();
-        eventSource.close();
+            final String responseMessage = inboundEvent.readData(String.class);
+            //System.out.println(inboundEvent.getName() + "; "
+            //      + inboundEvent.readData(String.class));
+        //    System.out.println("responseMessage$ " + responseMessage);
+            MessageDTO dto = new MessageDTO(responseMessage);
+            messageHolder.getResponseMessagesList().add(0, dto);
+          //  System.out.println(inboundEvent.getName() + "; "
+            //        + inboundEvent.readData(String.class));
+        }
+
+        //async, nod needed
+//        System.out.println("init called");
+//        Client client = ClientBuilder.newBuilder()
+//                .register(SseFeature.class).build();
+//        WebTarget webTarget = client.target("http://localhost:9090/broadcast");
+//        EventSource eventSource = EventSource.target(webTarget).build();
+//        EventListener listener = new EventListener() {
+//            @Override
+//            public void onEvent(InboundEvent inboundEvent) {
+//                if (inboundEvent.readData(String.class) != null) {
+//                    final String responseMessage = inboundEvent.readData(String.class);
+//                    //System.out.println(inboundEvent.getName() + "; "
+//                    //      + inboundEvent.readData(String.class));
+//                    System.out.println("responseMessage$ " + responseMessage);
+//                    MessageDTO dto = new MessageDTO(responseMessage);
+//                    messageHolder.getResponseMessagesList().add(0, dto);
+//                }
+//
+//            }
+//        };
+//
+//        //   System.out.println("responseMessage#### " + responseMessage);
+//        eventSource.register(listener, "message");
+//        eventSource.open();
+//        eventSource.close();
     }
 
     public void check() {
