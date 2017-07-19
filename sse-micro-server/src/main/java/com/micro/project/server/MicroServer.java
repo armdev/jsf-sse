@@ -23,16 +23,16 @@ public class MicroServer {
             System.out.println("Starting server: " + BASE_URL);
 
             final ResourceConfig resourceConfig = new ResourceConfig();                        
-            resourceConfig.register(BroadcasterResource.class);
-            
+            resourceConfig.register(BroadcasterResource.class);            
             HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URL), resourceConfig, false);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 server.shutdownNow();
             }));
+            
             HttpServerProbe probe = new HttpServerProbe.Adapter() {
                 @Override
                 public void onRequestReceiveEvent(HttpServerFilter filter, Connection connection, Request request) {
-                    System.out.println(request.getRequestURI());
+                    System.out.println("onRequestReceiveEvent " + request.getRequestURI());
                 }
             };
             server.getServerConfiguration().getMonitoringConfig().getWebServerConfig().addProbes(probe);

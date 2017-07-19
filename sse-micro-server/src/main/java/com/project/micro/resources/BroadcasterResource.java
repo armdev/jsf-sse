@@ -29,21 +29,23 @@ public class BroadcasterResource {
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.TEXT_PLAIN)
     public String broadcastMessage(String message) {
+        System.out.println("POST RECEIVED " + message );
         OutboundEvent.Builder eventBuilder = new OutboundEvent.Builder();
         OutboundEvent event = eventBuilder.name("message")
                 .mediaType(MediaType.TEXT_PLAIN_TYPE)
                 .data(String.class, message)
                 .build();
         broadcaster.broadcast(event);
-        System.out.println(" Received::::: " + message );
+        System.out.println("Received::::: " + message );
         return "MessageKUKU '" + message + "' has been broadcast.";
     }
 
     @GET        
     @Produces(SseFeature.SERVER_SENT_EVENTS)
     public EventOutput listenToBroadcast() {
+        System.out.println("Client accessed to broadcast ");
         final EventOutput eventOutput = new EventOutput();
-        System.out.println("###eventOutput " + eventOutput.toString() );
+        System.out.println("Sending to users: " + eventOutput.toString() );
         this.broadcaster.add(eventOutput);
         return eventOutput;
     }

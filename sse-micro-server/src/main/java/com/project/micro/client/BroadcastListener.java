@@ -4,8 +4,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import org.glassfish.jersey.media.sse.EventInput;
-import org.glassfish.jersey.media.sse.EventListener;
-import org.glassfish.jersey.media.sse.EventSource;
 import org.glassfish.jersey.media.sse.InboundEvent;
 import org.glassfish.jersey.media.sse.SseFeature;
 
@@ -28,7 +26,7 @@ public class BroadcastListener {
                 // connection has been closed
                 break;
             }
-            System.out.println(inboundEvent.getName() + "; "
+            System.out.println("received: " + inboundEvent.getName() + "; "
                     + inboundEvent.readData(String.class));
         }
 
