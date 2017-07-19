@@ -65,6 +65,7 @@ public class MessageListener implements Serializable {
     }
 
     public void checkSSE() {
+        System.out.println("Client start check");
         Client client = ClientBuilder.newBuilder()
                 .register(SseFeature.class).build();
         WebTarget target = client.target("http://localhost:9090/broadcast");
@@ -74,44 +75,18 @@ public class MessageListener implements Serializable {
             final InboundEvent inboundEvent = eventInput.read();
             if (inboundEvent == null) {
                 // connection has been closed
+                System.out.println("Connection closed");
                 break;
             }
-
             final String responseMessage = inboundEvent.readData(String.class);
-            //System.out.println(inboundEvent.getName() + "; "
-            //      + inboundEvent.readData(String.class));
-        //    System.out.println("responseMessage$ " + responseMessage);
+            System.out.println(inboundEvent.getName() + "; "
+                    + inboundEvent.readData(String.class));
+            System.out.println("responseMessage$ " + responseMessage);
             MessageDTO dto = new MessageDTO(responseMessage);
             messageHolder.getResponseMessagesList().add(0, dto);
-          //  System.out.println(inboundEvent.getName() + "; "
-            //        + inboundEvent.readData(String.class));
+
         }
 
-        //async, nod needed
-//        System.out.println("init called");
-//        Client client = ClientBuilder.newBuilder()
-//                .register(SseFeature.class).build();
-//        WebTarget webTarget = client.target("http://localhost:9090/broadcast");
-//        EventSource eventSource = EventSource.target(webTarget).build();
-//        EventListener listener = new EventListener() {
-//            @Override
-//            public void onEvent(InboundEvent inboundEvent) {
-//                if (inboundEvent.readData(String.class) != null) {
-//                    final String responseMessage = inboundEvent.readData(String.class);
-//                    //System.out.println(inboundEvent.getName() + "; "
-//                    //      + inboundEvent.readData(String.class));
-//                    System.out.println("responseMessage$ " + responseMessage);
-//                    MessageDTO dto = new MessageDTO(responseMessage);
-//                    messageHolder.getResponseMessagesList().add(0, dto);
-//                }
-//
-//            }
-//        };
-//
-//        //   System.out.println("responseMessage#### " + responseMessage);
-//        eventSource.register(listener, "message");
-//        eventSource.open();
-//        eventSource.close();
     }
 
     public void check() {
