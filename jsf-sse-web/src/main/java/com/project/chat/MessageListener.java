@@ -2,6 +2,7 @@ package com.project.chat;
 
 import java.io.Serializable;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.view.ViewScoped;
@@ -11,11 +12,12 @@ import javax.inject.Named;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.sse.InboundSseEvent;
+import javax.ws.rs.sse.SseEventSource;
 import lombok.Data;
 import org.glassfish.jersey.media.sse.EventInput;
 import org.glassfish.jersey.media.sse.InboundEvent;
 import org.glassfish.jersey.media.sse.SseFeature;
-
 
 @ViewScoped
 @Data
@@ -54,42 +56,26 @@ public class MessageListener implements Serializable {
     }
 
     public void checkSSE() {
-        System.out.println("Client start check");
 
-        Client client = ClientBuilder.newBuilder()
-                .register(SseFeature.class).build();
-        System.out.println("Client start client build");
-
+        Client client = ClientBuilder.newBuilder().build();
         WebTarget target = client.target("http://localhost:9090/broadcast");
-        System.out.println("Client target");
+        //SseEventSource sseEventSource = SseEventSource.target(target).build();
+        MessageDTO msgs = new MessageDTO();
+        try (SseEventSource eventSource = SseEventSource.target(target).build()) {
+            eventSource.register(new Consumer<InboundSseEvent>() {
+                @Override
+                public void accept(InboundSseEvent e) {
+                    System.out.println("New event. this not work yet..");
 
-        EventInput eventInput = target.request().get(EventInput.class);
-
-        System.out.println("eventInput " + eventInput.toString());
-        
-        while (!eventInput.isClosed()) {
-            System.out.println("Event inout not closed");
-            final InboundEvent inboundEvent = eventInput.read();
-            
-            if (inboundEvent == null) {
-                // connection has been closed
-                System.out.println("Connection closed");
-                break;
-            }
-            final String responseMessage = inboundEvent.readData(String.class);
-
-            System.out.println(inboundEvent.getName() + "; "
-                    + inboundEvent.readData(String.class));
-            System.out.println("ResponseMessage$ " + responseMessage);
-            MessageDTO dto = new MessageDTO(responseMessage);
-            System.out.println("Adding to List");
-            messageHolder.getResponseMessagesList().add(0, dto);
-
+                    msgs.setMessage(e.readData());
+                }
+            }, System.out::println);
+            eventSource.open();
         }
 
-    }
+        System.out.println("Client start check");
 
-    public void check() {
+        messageHolder.getResponseMessagesList().add(0, msgs);
 
     }
 

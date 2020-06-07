@@ -11,44 +11,50 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import org.glassfish.jersey.media.sse.EventOutput;
-import org.glassfish.jersey.media.sse.OutboundEvent;
-import org.glassfish.jersey.media.sse.SseBroadcaster;
-import org.glassfish.jersey.media.sse.SseFeature;
+import javax.ws.rs.sse.OutboundSseEvent;
+import javax.ws.rs.sse.Sse;
+import javax.ws.rs.sse.SseBroadcaster;
+import javax.ws.rs.sse.SseEventSink;
+
 
 @Singleton
 @Path("/broadcast")
 public class BroadcasterResource {
 
-    //https://jersey.java.net/documentation/latest/sse.html
-    
-    private final SseBroadcaster broadcaster = new SseBroadcaster();
+    private Sse sse;
+    private SseBroadcaster broadcaster;
 
-    @POST    
+    public BroadcasterResource(@Context final Sse sse) {
+        this.sse = sse;
+        this.broadcaster = sse.newBroadcaster();
+    }
+
+    @POST
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.TEXT_PLAIN)
     public String broadcastMessage(String message) {
-        System.out.println("POST RECEIVED " + message );
-        OutboundEvent.Builder eventBuilder = new OutboundEvent.Builder();
-        OutboundEvent event = eventBuilder.name("message")
+        final OutboundSseEvent event = sse.newEventBuilder()
+                .name("message")
                 .mediaType(MediaType.TEXT_PLAIN_TYPE)
                 .data(String.class, message)
                 .build();
+
         broadcaster.broadcast(event);
-        System.out.println("Received::::: " + message );
-        return "MessageKUKU '" + message + "' has been broadcast.";
+        
+      
+        System.out.println("Received: "+ message);
+        
+
+        return "Message '" + message + "' has been broadcast.";
     }
 
-    @GET       
-    @Produces(SseFeature.SERVER_SENT_EVENTS)
-    public EventOutput listenToBroadcast() {
-        System.out.println("Client accessed to broadcast ");
-        final EventOutput eventOutput = new EventOutput();
-      
-        System.out.println("Sending to users: " + eventOutput.toString() );
-        this.broadcaster.add(eventOutput);
-        return eventOutput;
+    @GET
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    public void listenToBroadcast(@Context SseEventSink eventSink) {
+         System.out.println("Broadcast START " );
+        this.broadcaster.register(eventSink);
     }
 
 }
