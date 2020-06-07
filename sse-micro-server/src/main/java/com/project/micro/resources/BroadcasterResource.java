@@ -40,11 +40,12 @@ public class BroadcasterResource {
         return "MessageKUKU '" + message + "' has been broadcast.";
     }
 
-    @GET        
+    @GET       
     @Produces(SseFeature.SERVER_SENT_EVENTS)
     public EventOutput listenToBroadcast() {
         System.out.println("Client accessed to broadcast ");
         final EventOutput eventOutput = new EventOutput();
+      
         System.out.println("Sending to users: " + eventOutput.toString() );
         this.broadcaster.add(eventOutput);
         return eventOutput;

@@ -15,6 +15,7 @@
 
     <f:view transient="false">
         <h:form>
+            <h:messages/>
             <p:layout  fullPage="true" style="min-width:400px;min-height:200px;">
                 <p:layoutUnit position="west" resizable="true" size="600" minSize="40" maxSize="600">
                     <h3>Send Message</h3>
@@ -23,14 +24,15 @@
                             <p:outputLabel for="username" value="Username:" />
                             <p:inputText id="username" value="#{messagePoster.secretUsername}" required="true" />
                             <p:outputLabel for="msgs" value="Message:" />
-                            <p:inputText id="msgs" value="#{messagePoster.secretMessage}" required="true" />
+                            <p:inputText id="msgs" value="#{messagePoster.secretMessage}" required="false" />
                             <h:outputText />
                             <p:commandButton id="submit" ajax="false" value="Post" actionListener="#{messagePoster.sendMessage()}"/>
                         </h:panelGrid>
                     </p:panel>
                 </p:layoutUnit>
-                <p:layoutUnit position="center">          
-                    <p:poll interval="3"  update="tbl"/>
+                <p:layoutUnit position="center">     
+                    
+                    <p:poll interval="6"  update="tbl" listener="#{messageListener.checkSSE()}" />
                     <p:dataTable var="list" id="tbl" rows="250" value="#{messageHolder.responseMessagesList}">
                         <p:column headerText="SSE">
                             <h:outputText value="#{list.message}" />
